@@ -11,7 +11,9 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.PSource;
+import javax.crypto.spec.SecretKeySpec;
 import java.nio.ByteBuffer;
+import java.security.MessageDigest;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.spec.MGF1ParameterSpec;
@@ -79,6 +81,28 @@ public class HybridCryptoService {
         buf.get(encryptedAesKey);
         buf.get(iv);
         buf.get(aesCipherText);
+        Cipher rsa = Cipher.getInstance(RSA_TRANSFORMATION);
+        OAEPParameterSpec oaep = new OAEPParameterSpec(
+                "SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT);
+        rsa.init(Cipher.DECRYPT_MODE, serverKey.getPrivateKey(), oaep);
+        byte[] aesKeyBytes = rsa.doFinal(encryptedAesKey);
+        SecretKey aesKey = new SecretKeySpec(aesKeyBytes, "AES");
+
+        Cipher aes = Cipher.getInstance(AES_TRANSFORMATION);
+        aes.init(Cipher.DECRYPT_MODE, aesKey, new GCMParameterSpec(GCM_TAG_BITS, iv));
+        byte[] plaintext = aes.doFinal(aesCipherText);
+
+        return json.readValue(plaintext, PaymentInstructionDto.class);
+    }
+
+    public String hashCiphertext(String base64Ciphertext) throws Exception{
+        MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+        byte[] hash = sha256.digest(base64Ciphertext.getBytes());
+        StringBuilder hex = new StringBuilder();
+        for(byte b : hash){
+            hex.append(String.format("%02x", b));
+        }
+        return hex.toString();
     }
 
 }
