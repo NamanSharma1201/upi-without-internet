@@ -25,6 +25,24 @@ public class TransactionService {
         return transactionRepository.existsByPacketHash(packetHash);
     }
 
+    public TransactionDto save(Transaction tx){
+        return toDto(transactionRepository.save(tx));
+    }
+
+    private TransactionDto toDto(Transaction t){
+        return TransactionDto.builder()
+                .id(t.getId())
+                .senderVpa(t.getSenderVpa())
+                .receiverVpa(t.getReceiverVpa())
+                .amount(t.getAmount())
+                .settledAt(t.getSettledAt())
+                .signedAt(t.getSignedAt())
+                .bridgeNodeId(t.getBridgeNodeId())
+                .hopCount(t.getHopCount())
+                .status(t.getStatus())
+                .hopCount(t.getHopCount()).build();
+    }
+
     private List<TransactionDto> toDto(List<Transaction> transactions){
         return transactions.stream().map(t -> {
             return TransactionDto.builder()
