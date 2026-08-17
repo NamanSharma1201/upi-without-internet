@@ -1,14 +1,13 @@
 package com.ncorp.upi_without_internet.controller;
 
+import com.ncorp.upi_without_internet.crypto.ServerKeyHolder;
 import com.ncorp.upi_without_internet.dto.AccountDto;
 import com.ncorp.upi_without_internet.dto.DemoSendRequest;
 import com.ncorp.upi_without_internet.dto.TransactionDto;
 import com.ncorp.upi_without_internet.entitty.Transaction;
 import com.ncorp.upi_without_internet.modal.MeshPacket;
 import com.ncorp.upi_without_internet.modal.VirtualDevice;
-import com.ncorp.upi_without_internet.service.AccountService;
-import com.ncorp.upi_without_internet.service.MeshSimulatorService;
-import com.ncorp.upi_without_internet.service.TransactionService;
+import com.ncorp.upi_without_internet.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -31,6 +30,19 @@ public class ApiController {
 
     @Autowired
     private MeshSimulatorService mesh;
+
+    @Autowired
+    private DemoService demo;
+
+    @Autowired
+    private BridgeIngestionService bridge;
+
+    @Autowired
+    private ServerKeyHolder serverKey;
+
+    @Autowired
+    private  IdempotencyService idempotency;
+
     @GetMapping("/server-key")
     public Map<String, String> getServerPublicKey(){
         return Map.of(
