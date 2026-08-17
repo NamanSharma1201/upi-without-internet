@@ -36,6 +36,11 @@ public class AccountService {
         return  toDto(accountRepository.save(account));
     }
 
+    public void addAccount(AccountDto acc){
+        Account account =  Account.builder().balance(acc.getBalance()).holderName(acc.getHolderName()).vpa(acc.getVpa()).build();
+        accountRepository.save(account);
+    }
+
 
 
     private List<AccountDto> toDto(List<Account> accounts){
